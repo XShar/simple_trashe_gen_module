@@ -176,6 +176,7 @@ static void fake_api_calls(void) {
 3)В итоге основной модуль движка "fake_api.cpp", в которм интерфейсная функция:
 
 void fake_api_instruction_gen(uint32_t instruction, uint32_t api) {
+
 	//Генерация случайных иснтрукций, нужного числа
 	for (uint32_t i = 0; i < instruction; i++) {
 		do_fake_instr();
