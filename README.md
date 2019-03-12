@@ -1,0 +1,2 @@
+# simple_trashe_gen_module
+simple_trashe_gen_module
