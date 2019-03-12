@@ -1,4 +1,4 @@
-#include "pch.h"
+п»ї#include "pch.h"
 #include <windows.h>
 #include <stdint.h>
 #include <iostream>
@@ -14,10 +14,10 @@ static uint32_t eax_random = 0;
 
 static void fake_api_calls(void) {
 
-	//Рандомное число, для вызова API в случайном порядке
+	//Р Р°РЅРґРѕРјРЅРѕРµ С‡РёСЃР»Рѕ, РґР»СЏ РІС‹Р·РѕРІР° API РІ СЃР»СѓС‡Р°Р№РЅРѕРј РїРѕСЂСЏРґРєРµ
 	eax_random = do_Random_EAX(0, 9);
 
-	//Рандомно вызываем API
+	//Р Р°РЅРґРѕРјРЅРѕ РІС‹Р·С‹РІР°РµРј API
 	if (eax_random == 0) {
 		LPSTR wiapi1 = GetCommandLineA();
 	}
@@ -51,12 +51,12 @@ static void fake_api_calls(void) {
 }
 
 void fake_api_instruction_gen(uint32_t instruction, uint32_t api) {
-	//Генерация случайных иснтрукций, нужного числа
+	//Р“РµРЅРµСЂР°С†РёСЏ СЃР»СѓС‡Р°Р№РЅС‹С… РёСЃРЅС‚СЂСѓРєС†РёР№, РЅСѓР¶РЅРѕРіРѕ С‡РёСЃР»Р°
 	for (uint32_t i = 0; i < instruction; i++) {
 		do_fake_instr();
 	}
 
-	//Вызовы случайных API, нужного числа
+	//Р’С‹Р·РѕРІС‹ СЃР»СѓС‡Р°Р№РЅС‹С… API, РЅСѓР¶РЅРѕРіРѕ С‡РёСЃР»Р°
 	for (uint32_t i = 0; i < api; i++) {
 		fake_api_calls();
 	}
