@@ -179,12 +179,16 @@ void fake_api_instruction_gen(uint32_t instruction, uint32_t api) {
 
 	//Генерация случайных иснтрукций, нужного числа
 	for (uint32_t i = 0; i < instruction; i++) {
+	
 		do_fake_instr();
+		
 	}
 
 	//Вызовы случайных API, нужного числа
 	for (uint32_t i = 0; i < api; i++) {
+	
 		fake_api_calls();
+		
 	}
 }
 
