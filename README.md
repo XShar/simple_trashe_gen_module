@@ -190,6 +190,7 @@ void fake_api_instruction_gen(uint32_t instruction, uint32_t api) {
 Описание параметров:
 
 uint32_t instruction - Число интсрукций, которые нужно сгенерировать.
+
 uint32_t api - Число API, которые мы вызываем.
 
 4)Пример использования example.cpp:
