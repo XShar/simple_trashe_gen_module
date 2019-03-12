@@ -62,24 +62,41 @@ Simple_trash_gen_module - Модуль для полиморфной генер�
 В документации на процессор, можно найти опкоды ассемблерных команд, я использую такие (В будущем можно увеличить):
 
 regw1   db 03h, 0C0h ;add reg1, reg2
+
 regw2   db 2Bh, 0C0h ;sub reg1, reg2
+
 regw3   db 33h, 0C0h ;xor reg1, reg2
+
 regw4   db 8Bh, 0C0h ;mov reg1, reg2
+
 regw5   db 87h, 0C0h ;xchg reg1, reg2
+
 regw6   db 0Bh, 0C0h ;or reg1, reg2
+
 regw7   db 23h, 0C0h ;and reg1, reg2
+
 regw8   db 0F7h, 0D0h ;not reg1
+
 regw9   db 0D1h, 0E0h ;shl reg1, 1
+
 regw10  db 0D1h, 0E8h ;shr reg1, 1
+
 regw11  db 081h, 0E8h ;sub reg1, rnd
-regw12  db 081h, 0C0h ;add reg1, rnd
+
 regw13  db 081h, 0F0h ;xor reg1, rnd
+
 regw14  db 081h, 0C8h ;or reg1, rnd
+
 regw15  db 081h, 0E0h ;and reg1, rnd
+
 regw16  db 0F7h, 0D8h ;neg reg1
+
 regw17  db 0D1h, 0C0h ;rol reg1, 1
+
 regw18  db 0D1h, 0C8h ;ror reg1, 1
+
 regw19  db 08Dh, 00h  ;lea reg1, [reg2]
+
 regd1   db 0B8h; mov reg1, rnd
 
 Далее были написаны функции для генерации каждой инструкции, описание всех приводить смысла нет, это можно глянуть в исходники ("fake_instructions.asm"), опишу одну из них:
