@@ -17,6 +17,8 @@ static void fake_api_calls(void) {
 	//Рандомное число, для вызова API в случайном порядке
 	eax_random = do_Random_EAX(0, 9);
 
+	std::cout << "debug_EAX: " << eax_random << "\n";
+
 	//Рандомно вызываем API
 	if (eax_random == 0) {
 		LPSTR wiapi1 = GetCommandLineA();
@@ -31,7 +33,7 @@ static void fake_api_calls(void) {
 		DWORD wiapi4 = GetLastError();
 	}
 	else if (eax_random == 4) {
-		DWORD wiapi5 = GetVersion();
+		LANGID wiapi5 = GetSystemDefaultLangID();
 	}
 	else if (eax_random == 5) {
 		HANDLE wiapi6 = GetCurrentProcess();
