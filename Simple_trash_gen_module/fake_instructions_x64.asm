@@ -2,22 +2,13 @@
 
 include 'win64ax.inc'
 
-public  do_Random_EAX as 'do_Random_EAX'
-public  do_fake_instr as 'do_fake_instr'
+public  do_Random_EAX as '_do_Random_EAX'
+public  do_fake_instr as '_do_fake_instr'
 
 
 section '.text' code readable executable
 
-regw1   dq 0h, 30h ;add BYTE PTR [rax],dh
-regw2   dq 0B0h, 0C0h ;mov al,0xc0
-regw3   dq 0h, 0DDh ;add ch,bl
-regw4   dq 0h, 0DCh ;div rcx
-regw5   dq 0d0h, 0c0h ;rol al,1
-regw6   dq 0B0h, 0C1h ;mov al,0xc0
-regw7   dq 0f7h, 0d0h  ;not eax
-regw8   db 031h, 0c0h  ;xor eax,eax
-
-extrn debug_print ;Для дебага, обычный std_out в си, меняет регистры, не забывайте сохранять и восстанавливать их.)))
+extrn _debug_print ;Для дебага, обычный std_out в си, меняет регистры, не забывайте сохранять и восстанавливать их.)))
 ;Пример использования ccall _debug_print,38 (Напечатает "Debug 38" в консоле)
 
 ;---------------------------------------------
@@ -32,21 +23,21 @@ proc    do_Random_EAX rmin:qword,rmax:qword
        push rcx
 
        mov   [value_min2],eax
+       ccall _debug_print,[value_min2]
 
        mov   [value_min2],eax
+       ccall _debug_print,[value_min2]
 
        ;Инициализация генератора
        stdcall  WRandomInit
 
        mov   [value_min],rcx
-        mov   [value_max],rdx
+       mov   [value_max],rdx
 
-        ;ccall _debug_print,[value_min]
+       ;Получить случайное число
+       stdcall WIRandom,[value_min],[value_max]
 
-        ;Получить случайное число
-        stdcall WIRandom,[value_min],[value_max]
-
-        ;Восстановление регистров
+       ;Восстановление регистров
        pop rcx
        pop rbx
 
@@ -123,48 +114,52 @@ proc do_fake_instr
         push rbp
         push rcx
 
-        mov rsi, regw1
-        lodsw
-        stosw
+       ;Инициализация генератора
+        stdcall  WRandomInit
 
-        ;mov   [value_min],rax
-        ;ccall _debug_print,[value_min]
+       ;Получить случайное число от 0 до19
+       stdcall WIRandom,0,19
+	   
+	    .if eax=0
+                db 03h, 0C0h ;add reg1, reg2
+        .elseif eax=1
+                db 2Bh, 0C0h ;sub reg1, reg2
+        .elseif eax=2
+                db 33h, 0C0h ;xor reg1, reg2
+        .elseif eax=3
+                db 8Bh, 0C0h ;mov reg1, reg2 
+        .elseif eax=4
+                db 87h, 0C0h ;xchg reg1, reg2 
+        .elseif eax=5
+                db 0Bh, 0C0h ;or reg1, reg2
+        .elseif eax=6
+                db 23h, 0C0h ;and reg1, reg2
+        .elseif eax=7
+                db 0F7h, 0D0h ;not reg1
+        .elseif eax=8
+                db 0D1h, 0E0h ;shl reg1, 1
+        .elseif eax=9
+                db 0D1h, 0E8h ;shr reg1, 1
+        .elseif eax=10
+                db 081h, 0E8h ;sub reg1, rnd
+        .elseif eax=11
+                db 081h, 0C0h ;add reg1, rnd
+        .elseif eax=12
+                db 081h, 0F0h ;xor reg1, rnd
+        .elseif eax=14
+                db 081h, 0C8h ;or reg1, rnd
+        .elseif eax=15
+                db 081h, 0E0h ;and reg1, rnd
+        .elseif eax=16
+                db 0F7h, 0D8h ;neg reg1
+        .elseif eax=17
+                db 0D1h, 0C0h ;rol reg1, 1
+        .elseif eax=18
+                db 0D1h, 0C8h ;ror reg1, 1
+        .elseif eax=19
+                db 08Dh, 00h  ;lea reg1, [reg2]
+        .endif
 
-        ;ccall _debug_print,[value_min]
-
-        ;ccall _debug_print,0
-
-        ; Инициализация генератора
-        ;stdcall  WRandomInit
-
-       ; ccall _debug_print,0
-
-        ;Получить случайное число от 0 до19
-        ;stdcall WIRandom,0,19
-
-       ; ccall _debug_print,0
-
-       ; mov rax, 0
-
-       ;.if rax=0
-       ;     mov rsi, regw1
-        ;    lodsw
-         ;   xor rbx, rbx
-          ;  mov rbx, rcx
-           ; shl rbx, 3
-           ; or rbx, rdx
-           ; add ah, bl
-           ; stosw
-        ;.elseif rax=1
-        ;     mov rsi, regw1
-        ;     lodsw
-        ;     xor rbx, rbx
-        ;     mov rbx, rcx
-        ;     shl rbx, 3
-        ;     or rbx, rdx
-       ;      add ah, bl
-       ;      stosw
-      ;  .endif
 
         pop rcx
         pop rbp
