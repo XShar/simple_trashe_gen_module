@@ -2,13 +2,13 @@
 
 include 'win64ax.inc'
 
-public  do_Random_EAX as '_do_Random_EAX'
-public  do_fake_instr as '_do_fake_instr'
+public  do_Random_EAX as 'do_Random_EAX'
+public  do_fake_instr as 'do_fake_instr'
 
 
 section '.text' code readable executable
 
-extrn _debug_print ;Для дебага, обычный std_out в си, меняет регистры, не забывайте сохранять и восстанавливать их.)))
+extrn debug_print ;Для дебага, обычный std_out в си, меняет регистры, не забывайте сохранять и восстанавливать их.)))
 ;Пример использования ccall _debug_print,38 (Напечатает "Debug 38" в консоле)
 
 ;---------------------------------------------
@@ -21,12 +21,6 @@ proc    do_Random_EAX rmin:qword,rmax:qword
         ;Сохранение регистров (На всякий случай)
        push rbx
        push rcx
-
-       mov   [value_min2],eax
-       ccall _debug_print,[value_min2]
-
-       mov   [value_min2],eax
-       ccall _debug_print,[value_min2]
 
        ;Инициализация генератора
        stdcall  WRandomInit
@@ -119,47 +113,45 @@ proc do_fake_instr
 
        ;Получить случайное число от 0 до19
        stdcall WIRandom,0,19
-	   
-	    .if eax=0
-                db 03h, 0C0h ;add reg1, reg2
-        .elseif eax=1
-                db 2Bh, 0C0h ;sub reg1, reg2
-        .elseif eax=2
-                db 33h, 0C0h ;xor reg1, reg2
-        .elseif eax=3
-                db 8Bh, 0C0h ;mov reg1, reg2 
-        .elseif eax=4
-                db 87h, 0C0h ;xchg reg1, reg2 
-        .elseif eax=5
-                db 0Bh, 0C0h ;or reg1, reg2
-        .elseif eax=6
-                db 23h, 0C0h ;and reg1, reg2
-        .elseif eax=7
-                db 0F7h, 0D0h ;not reg1
-        .elseif eax=8
-                db 0D1h, 0E0h ;shl reg1, 1
-        .elseif eax=9
-                db 0D1h, 0E8h ;shr reg1, 1
-        .elseif eax=10
-                db 081h, 0E8h ;sub reg1, rnd
-        .elseif eax=11
-                db 081h, 0C0h ;add reg1, rnd
-        .elseif eax=12
-                db 081h, 0F0h ;xor reg1, rnd
-        .elseif eax=14
-                db 081h, 0C8h ;or reg1, rnd
-        .elseif eax=15
-                db 081h, 0E0h ;and reg1, rnd
-        .elseif eax=16
-                db 0F7h, 0D8h ;neg reg1
-        .elseif eax=17
-                db 0D1h, 0C0h ;rol reg1, 1
-        .elseif eax=18
-                db 0D1h, 0C8h ;ror reg1, 1
-        .elseif eax=19
-                db 08Dh, 00h  ;lea reg1, [reg2]
-        .endif
 
+      ;Подготовка
+
+       db 0x48, 0xC7, 0xC1, 0xA0, 0x86, 0x01, 0x00 ;mov rcx,100000
+       db 0x48, 0xFF, 0xC1  ;inc rcx
+       db 0x48, 0xF7, 0xE2 ;mul rdx
+       db 0x48, 0xc7, 0xc1, 0x1d, 0xf3, 0x01, 0x00 ;mov rcx,0x1f31d
+       db 0x48, 0xf7, 0xf1 ;div rcx
+       db 0x48, 0x29, 0xc1 ;sub rcx,rax
+       db 0x48, 0x31, 0xd2 ;xor rdx,rdx
+
+       .if rax=0
+            db 0x48,0x89, 0xc1  ;mov rcx,rax
+        .elseif rax=1
+            db 0x48, 0xC7, 0xC0, 0xA7, 0x41, 0x00, 0x00 ;mov rax,0x41a7
+        .elseif rax=2
+            db 0x48, 0xC7, 0xC0, 0xCF, 0x6E, 0x00, 0x00 ;mov rax,0x6ecf
+        .elseif rax=3
+            db 0x48, 0x29, 0xC1 ;sub rcx,rax
+        .elseif rax=4
+            db 0x48, 0x31, 0xD2 ;xor rdx,rdx
+        .elseif rax=5
+            db 0x48, 0xC7, 0xC1, 0xA0, 0x86, 0x01, 0x00 ;mov rcx,100000
+        .elseif rax=6
+            db 0x48, 0xFF, 0xC1  ;inc rcx
+        .elseif rax=7
+            db 0x48, 0x31, 0xd0    ;xor rax,rdx
+        .elseif rax=8
+            db 0x48, 0xF7, 0xE2 ;mul rdx
+        .elseif rax=9
+            db 0x48, 0xc7, 0xc1, 0x1d, 0xf3, 0x01, 0x00 ;mov rcx,0x1f31d
+        .elseif rax=10
+            db 0x48, 0xf7, 0xf1 ;div rcx
+        .elseif rax=11
+            db 0x48, 0x29, 0xc1 ;sub rcx,rax
+        .elseif rax=12
+            db 0x48, 0x31, 0xd2 ;xor rdx,rdx
+
+        .endif
 
         pop rcx
         pop rbp
@@ -167,191 +159,6 @@ proc do_fake_instr
         pop rdi
         pop rsi
         ret
-endp
-
-;---------------------------------------------
-;Функции для генерации инструкций
-;---------------------------------------------
-proc make_addreg
-        mov rsi, regw1
-        lodsw
-        xor rbx, rbx
-        mov rbx, rcx
-        shl rbx, 3
-        or rbx, rdx
-        add ah, bl
-        stosw
-        Ret
-endp
-proc make_subreg
-        mov rsi,regw2
-        lodsw
-        xor rbx, rbx
-        mov rbx, rcx
-        shl rbx, 3
-        or rbx, rdx
-        add ah, bl
-        stosw
-        Ret
-endp
-proc make_xorreg
-        mov rsi,regw3
-        lodsw
-        xor rbx, rbx
-        mov rbx, rcx
-        shl rbx, 3
-        or rbx, rdx
-        add ah, bl
-        stosw
-        Ret
-endp
-proc make_movreg
-        mov rsi,regw4
-        lodsw
-        xor rbx, rbx
-        mov rbx, rcx
-        shl rbx, 3
-        or rbx, rdx
-        add ah, bl
-        stosw
-        Ret
-endp
-proc make_xchgreg
-        mov rsi,regw5
-        lodsw
-        xor rbx, rbx
-        mov rbx, rcx
-        shl rbx, 3
-        or rbx, rdx
-        add ah, bl
-        stosw
-        Ret
-endp
-proc make_orreg
-        mov rsi,regw6
-        lodsw
-        xor rbx, rbx
-        mov rbx, rcx
-        shl rbx, 3
-        or rbx, rdx
-        add ah, bl
-        stosw
-        Ret
-endp
-proc make_andreg
-        mov rsi,regw7
-        lodsw
-        xor rbx, rbx
-        mov rbx, rcx
-        shl rbx, 3
-        or rbx, rdx
-        add ah, bl
-        stosw
-        Ret
-endp
-proc make_notreg
-        mov rsi,regw8
-        lodsw
-        add ah, cl
-        stosw
-        Ret
-endp
-proc make_shlreg
-        mov rsi,regw9
-        lodsw
-        add ah, dl
-        stosw
-        Ret
-endp
-proc make_shrreg
-        mov rsi,regw10
-        lodsw
-        add ah, cl
-        stosw
-        Ret
-endp
-proc make_subrnd
-        mov rsi,regw11
-        lodsw
-        add ah, dl
-        stosw
-        mov rax, -1
-        stosd
-        Ret
-endp
-proc make_addrnd
-        or rdx, rdx
-        mov al, 05h
-        stosb
-        mov rax, -1
-        stosd
-        Ret
-endp
-proc make_xorrnd
-        or rdx, rdx
-        mov al, 35h
-        stosb
-        mov rax, -1
-        stosd
-        Ret
-endp
-proc make_orrnd
-        mov rsi,regw14
-        lodsw
-        add ah, cl
-        stosw
-        mov rax, -1
-        stosd
-        Ret
-endp
-proc make_andrnd
-        or rdx, rdx
-        mov al, 25h
-        stosb
-        mov rax, -1
-        stosd
-        Ret
-endp
-proc make_negreg
-        mov rsi,regw16
-        lodsw
-        add ah, cl
-        stosw
-        Ret
-endp
-proc make_rolreg
-        mov rsi,regw17
-        lodsw
-        add ah, cl
-        stosw
-        Ret
-endp
-proc make_rorreg
-        mov rsi,regw18
-        lodsw
-        add ah, cl
-        stosw
-        Ret
-endp
-proc make_leareg
-        mov rsi, regw19
-        lodsw
-        xor rbx, rbx
-        mov rbx, rcx
-        shl rbx, 3
-        or rbx, rdx
-        add ah, bl
-        stosw
-        Ret
-endp
-proc make_movrnd
-        mov rsi, regd1
-        lodsb
-        add al, cl
-        stosb
-        mov rax, -1
-        stosd
-        Ret
 endp
 
 section '.data' data readable writeable
